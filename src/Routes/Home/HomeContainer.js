@@ -31,22 +31,22 @@ export default class extends React.Component {
         error: "Can't find movie Infomation"
       });
     } finally {
-      this.setState = {
+      this.setState({
         loading: false
-      };
+      });
     }
   }
 
   render() {
-    const { nowPlaying, upcomming, popular, error, loading } = this.state;
-    console.log(this.state);
+    const { nowPlaying, upcoming, popular, error, loading } = this.state;
+
     return (
       <HomePresenter
         nowPlaying={nowPlaying}
-        upcomming={upcomming}
         popular={popular}
-        error={error}
+        upcoming={upcoming}
         loading={loading}
+        error={error}
       />
     );
   }
