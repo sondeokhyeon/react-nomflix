@@ -28,7 +28,9 @@ export default class extends React.Component {
         error: "Can't find TV information."
       });
     } finally {
-      this.setState({ loading: false });
+      this.setState({
+        loading: false
+      });
     }
   }
 
