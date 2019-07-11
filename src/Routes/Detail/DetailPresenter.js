@@ -2,6 +2,8 @@ import React from "react";
 import PropTypes from "prop-types";
 import styled from "styled-components";
 import Loader from "Components/Loader";
+import Helmet from "react-helmet";
+import Message from "../../Components/Message";
 
 const Container = styled.div`
   height: calc(100vh - 50px);
@@ -56,8 +58,42 @@ const ItemContainr = styled.div`
 
 const Item = styled.span``;
 
+const Imdb = styled.a`
+  font-weight: 500;
+  color: skyblue;
+`;
+
 const Divider = styled.span`
   margin: 0px 10px;
+`;
+
+const CompanyContainer = styled.div`
+  width: 100%;
+  background-color: #cacaca59;
+  display: flex;
+  height: 200px;
+  margin-top: 20px;
+`;
+
+const Company = styled.div`
+  display: flex;
+  flex-direction: column;
+  margin: 10px;
+  width: 200px;
+`;
+
+const Companylogo = styled.div`
+  background-image: url(${props => props.bgImage});
+  background-repeat: no-repeat;
+  background-size: contain;
+  background-position: center center;
+  width: 200px;
+  height: 200px;
+  margin: 10px;
+`;
+
+const Companyname = styled.div`
+  text-align: center;
 `;
 
 const Overview = styled.p`
@@ -69,9 +105,20 @@ const Overview = styled.p`
 
 const DetailPresenter = ({ result, loading, error }) =>
   loading ? (
-    <Loader />
+    <>
+      <Helmet>
+        <title>loading | Nomflix</title>
+      </Helmet>
+      <Loader />
+    </>
   ) : (
     <Container>
+      <Helmet>
+        <title>
+          {result.original_title ? result.original_title : result.original_name}{" "}
+          | Nomflix
+        </title>
+      </Helmet>
       <Backdrop
         bgImage={
           result.poster_path
@@ -94,28 +141,56 @@ const DetailPresenter = ({ result, loading, error }) =>
               : result.original_name}
           </Title>
           <ItemContainr>
-            <item>
+            <Item>
               {result.release_date
                 ? result.release_date.substring(0, 4)
                 : result.first_air_date.substring(0, 4)}
-            </item>
+            </Item>
             <Divider>﹒</Divider>
-            <item>
+            <Item>
               {result.runtime ? result.runtime : result.episode_run_time[0]} min
-            </item>
+            </Item>
             <Divider>﹒</Divider>
-            <item>
+            <Item>
               {result.genres &&
                 result.genres.map((genres, index) =>
                   index === result.genres.length - 1
                     ? genres.name
                     : `${genres.name} / `
                 )}
-            </item>
+            </Item>
+            <Item>
+              {result.imdb_id && (
+                <>
+                  <Divider>﹒</Divider>
+                  <Imdb
+                    href={`https://www.imdb.com/title/${result.imdb_id}`}
+                    target="_blank"
+                  >
+                    DB-link
+                  </Imdb>
+                </>
+              )}
+            </Item>
           </ItemContainr>
           <Overview>{result.overview}</Overview>
+          <CompanyContainer>
+            {result.production_companies &&
+              result.production_companies.length > 1 &&
+              result.production_companies.map(production_companies => (
+                <Company>
+                  <Companylogo
+                    bgImage={`https://image.tmdb.org/t/p/w200${
+                      production_companies.logo_path
+                    }`}
+                  />
+                  <Companyname>{production_companies.name}</Companyname>
+                </Company>
+              ))}
+          </CompanyContainer>
         </Data>
       </Content>
+      {error && <Message error={error} color="#e74c3c" />}
     </Container>
   );
 
