@@ -1,9 +1,10 @@
 import React from "react";
 import PropTypes from "prop-types";
-import styled from "styled-components";
 import Loader from "Components/Loader";
+import styled from "styled-components";
 import Helmet from "react-helmet";
 import Message from "../../Components/Message";
+import { Link } from "react-router-dom";
 
 const Container = styled.div`
   height: calc(100vh - 50px);
@@ -65,6 +66,12 @@ const Imdb = styled.a`
 
 const Divider = styled.span`
   margin: 0px 10px;
+`;
+
+const MovieTrailer = styled.div`
+  margin: 10px 0px;
+  font-size: 20px;
+  color: skyblue;
 `;
 
 const CompanyContainer = styled.div`
@@ -174,20 +181,38 @@ const DetailPresenter = ({ result, loading, error }) =>
             </Item>
           </ItemContainr>
           <Overview>{result.overview}</Overview>
-          <CompanyContainer>
-            {result.production_companies &&
-              result.production_companies.length > 1 &&
-              result.production_companies.map(production_companies => (
-                <Company>
-                  <Companylogo
-                    bgImage={`https://image.tmdb.org/t/p/w200${
-                      production_companies.logo_path
-                    }`}
-                  />
-                  <Companyname>{production_companies.name}</Companyname>
-                </Company>
-              ))}
-          </CompanyContainer>
+          {result.videos && (
+            <MovieTrailer>
+              <Link
+                to={{
+                  pathname: `/trailer/${result.id}`,
+                  videos: result.videos.results,
+                  name: result.original_title
+                }}
+              >
+                MovieTrailer
+              </Link>
+            </MovieTrailer>
+          )}
+          {result.production_companies &&
+            result.production_companies.length > 1 && (
+              <CompanyContainer>
+                {result.production_companies.map(company => (
+                  <Company key={company.id}>
+                    <Companylogo
+                      bgImage={
+                        company.logo_path
+                          ? `https://image.tmdb.org/t/p/w200${
+                              company.logo_path
+                            }`
+                          : require("../../asserts/noPosterSmall.png")
+                      }
+                    />
+                    <Companyname>{company.name}</Companyname>
+                  </Company>
+                ))}
+              </CompanyContainer>
+            )}
         </Data>
       </Content>
       {error && <Message error={error} color="#e74c3c" />}
