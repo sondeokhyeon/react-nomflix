@@ -4,21 +4,50 @@ import styled from "styled-components";
 import Helmet from "react-helmet";
 import Loader from "Components/Loader";
 import Message from "Components/Message";
+import YouTube from "react-youtube";
+import { Link } from "react-router-dom";
 
 const Container = styled.div`
   height: calc(100vh - 50px);
   width: 100%;
   position: relative;
-  padding: 50px;
+  padding: 20px;
   display: flex;
 `;
 
-const VideoPlayer = styled.div``;
+const VideoPlayer = styled(YouTube)`
+  width: 70vw;
+  height: 100%;
+`;
 
-const VideoListContainer = styled.div``;
-const VideoList = styled.div``;
+const youtubeOpts = {
+  height: "100%",
+  width: "100%",
+  playerVars: {
+    autoplay: 0
+  }
+};
 
-const TrailerPresenter = ({ name, videos, loading, error }) =>
+const VideoListContainer = styled.ul`
+  width: 100%;
+  height: 100%;
+  overflow: scroll;
+`;
+
+const VideoList = styled.li`
+  border-bottom: 1px solid gray;
+  padding: 30px 0;
+  &:hover {
+    background-color: grey;
+  }
+`;
+const VideoName = styled(Link)`
+  font-size: 15px;
+  overflow: hidden;
+  padding-left: 5px;
+`;
+
+const TrailerPresenter = ({ result, loading, error, pathname, trailerId }) =>
   loading ? (
     <>
       <Helmet>
@@ -31,13 +60,17 @@ const TrailerPresenter = ({ name, videos, loading, error }) =>
   ) : (
     <>
       <Helmet>
-        <title>{name}</title>
+        <title>{result.original_title}</title>
       </Helmet>
       <Container>
-        <VideoPlayer />
+        <VideoPlayer videoId={trailerId} opts={youtubeOpts} />
         <VideoListContainer>
-          {videos.map(video => (
-            <VideoList key={video.key}>{video.name}</VideoList>
+          {result.videos.results.map(video => (
+            <VideoList key={video.id}>
+              <VideoName to={`${pathname}/${video.key}`}>
+                {video.name}
+              </VideoName>
+            </VideoList>
           ))}
         </VideoListContainer>
       </Container>

@@ -1,38 +1,75 @@
 import React from "react";
 import TrailerPresenter from "./TrailerPresenter";
+import { moviesApi, tvApi } from "api";
 
 export default class extends React.Component {
-  state = {
-    name: null,
-    videos: null,
-    error: null,
-    loading: true
-  };
+  constructor(props) {
+    super(props);
+    const {
+      location: { pathname }
+    } = props;
+    this.state = {
+      result: Object,
+      error: null,
+      loading: true,
+      pathname: pathname,
+      isMovie: pathname.includes("m"),
+      trailerId: ""
+    };
+  }
+
   async componentDidMount() {
+    const {
+      match: {
+        params: { id }
+      },
+      history: { push }
+    } = this.props;
+    const { isMovie } = this.state;
+    const parsedId = parseInt(id);
+    if (isNaN(parsedId)) {
+      return push("/");
+    }
+    let result;
     try {
-      this.setState({
-        videos: this.props.location.videos,
-        name: this.props.location.name
-      });
+      if (isMovie) {
+        ({ data: result } = await moviesApi.movieDetail(parsedId));
+      } else {
+        ({ data: result } = await tvApi.showDetail(parsedId));
+      }
     } catch {
-      this.setState({
-        error: "Error occurred"
-      });
+      this.setState({ error: "Can't find AnyThing" });
     } finally {
       this.setState({
-        loading: false
+        loading: false,
+        result,
+        trailerId: result.videos.results[0].key
       });
     }
   }
 
+  async componentWillReceiveProps(props) {
+    const {
+      location: { pathname }
+    } = props;
+    this.state.result.videos.results.filter(
+      rs =>
+        rs.key === pathname.substring(23) &&
+        this.setState({
+          trailerId: rs.key
+        })
+    );
+  }
+
   render() {
-    const { name, videos, loading, error } = this.state;
+    const { result, loading, error, pathname, trailerId } = this.state;
     return (
       <TrailerPresenter
-        name={name}
-        videos={videos}
+        result={result}
         loading={loading}
         error={error}
+        pathname={pathname}
+        trailerId={trailerId}
       />
     );
   }

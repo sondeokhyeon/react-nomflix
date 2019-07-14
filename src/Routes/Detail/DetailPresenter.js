@@ -62,13 +62,18 @@ const Item = styled.span``;
 const Imdb = styled.a`
   font-weight: 500;
   color: skyblue;
+  font-size: 20px;
 `;
 
 const Divider = styled.span`
   margin: 0px 10px;
 `;
 
-const MovieTrailer = styled.div`
+const VideoDataContainer = styled.div`
+  margin-top: 10px;
+`;
+
+const TrailerVideo = styled.span`
   margin: 10px 0px;
   font-size: 20px;
   color: skyblue;
@@ -78,7 +83,7 @@ const CompanyContainer = styled.div`
   width: 100%;
   background-color: #cacaca59;
   display: flex;
-  height: 200px;
+  height: 260px;
   margin-top: 20px;
 `;
 
@@ -95,11 +100,11 @@ const Companylogo = styled.div`
   background-size: contain;
   background-position: center center;
   width: 200px;
-  height: 200px;
-  margin: 10px;
+  height: 250px;
 `;
 
 const Companyname = styled.div`
+  padding-top: 5px;
   text-align: center;
 `;
 
@@ -110,7 +115,35 @@ const Overview = styled.p`
   width: 50%;
 `;
 
-const DetailPresenter = ({ result, loading, error }) =>
+const SeasonContainer = styled.div`
+  width: 100%;
+  background-color: #cacaca59;
+  display: flex;
+  height: 260px;
+  margin-top: 20px;
+  overflow: scroll;
+`;
+
+const Season = styled.div`
+  display: flex;
+  flex-direction: column;
+  width: 200px;
+`;
+const SeasonPoster = styled.div`
+  margin-top: 15px;
+  background-image: url(${props => props.bgImage});
+  background-repeat: no-repeat;
+  background-size: contain;
+  background-position: center center;
+  width: 200px;
+  height: 210px;
+`;
+const SeasonName = styled.div`
+  padding-top: 10px;
+  text-align: center;
+`;
+
+const DetailPresenter = ({ result, loading, error, isMovie }) =>
   loading ? (
     <>
       <Helmet>
@@ -166,34 +199,29 @@ const DetailPresenter = ({ result, loading, error }) =>
                     : `${genres.name} / `
                 )}
             </Item>
-            <Item>
-              {result.imdb_id && (
-                <>
-                  <Divider>﹒</Divider>
-                  <Imdb
-                    href={`https://www.imdb.com/title/${result.imdb_id}`}
-                    target="_blank"
-                  >
-                    DB-link
-                  </Imdb>
-                </>
-              )}
-            </Item>
           </ItemContainr>
           <Overview>{result.overview}</Overview>
-          {result.videos && (
-            <MovieTrailer>
-              <Link
-                to={{
-                  pathname: `/trailer/${result.id}`,
-                  videos: result.videos.results,
-                  name: result.original_title
-                }}
-              >
-                MovieTrailer
-              </Link>
-            </MovieTrailer>
-          )}
+          <VideoDataContainer>
+            {result.imdb_id && (
+              <>
+                <Imdb
+                  href={`https://www.imdb.com/title/${result.imdb_id}`}
+                  target="_blank"
+                >
+                  DB-link
+                </Imdb>
+                <Divider>﹒</Divider>
+              </>
+            )}
+            {result.videos && (
+              <TrailerVideo>
+                <Link to={`/trailer/${result.id}/type=${isMovie}`}>
+                  TrailerVideo
+                </Link>
+              </TrailerVideo>
+            )}
+          </VideoDataContainer>
+
           {result.production_companies &&
             result.production_companies.length > 1 && (
               <CompanyContainer>
@@ -213,6 +241,23 @@ const DetailPresenter = ({ result, loading, error }) =>
                 ))}
               </CompanyContainer>
             )}
+
+          {result.seasons && result.seasons.length > 1 && (
+            <SeasonContainer>
+              {result.seasons.map(season => (
+                <Season>
+                  <SeasonPoster
+                    bgImage={
+                      season.poster_path
+                        ? `https://image.tmdb.org/t/p/w200${season.poster_path}`
+                        : require("../../asserts/noPosterSmall.png")
+                    }
+                  />
+                  <SeasonName>{season.name}</SeasonName>
+                </Season>
+              ))}
+            </SeasonContainer>
+          )}
         </Data>
       </Content>
       {error && <Message error={error} color="#e74c3c" />}
