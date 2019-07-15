@@ -24,7 +24,7 @@ const youtubeOpts = {
   height: "100%",
   width: "100%",
   playerVars: {
-    autoplay: 0
+    autoplay: 1
   }
 };
 
