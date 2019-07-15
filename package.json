@@ -26,7 +26,7 @@
   "eslintConfig": {
     "extends": "react-app"
   },
-  "homepage": "https://sondeokhyeon.github.io/react-nomflix",
+  "homepage": "https://dreamy-euler-a7698c.netlify.com/",
   "browserslist": {
     "production": [
       ">0.2%",
