@@ -48,21 +48,28 @@ export default class extends React.Component {
     }
   }
 
-  async componentWillReceiveProps(props) {
-    const {
-      location: { pathname }
-    } = props;
-    this.state.result.videos.results.filter(
-      rs =>
-        rs.key === pathname.substring(23) &&
-        this.setState({
-          trailerId: rs.key
-        })
-    );
-  }
+  static getDerivedStateFromProps(props, state) {
+    const { location : {pathname}} = props
+    const {loading } = state
+    if(loading === false) {
+      if(pathname.split("/")[4]) {
+        const item = state.result.videos.results.filter(
+          rs => rs.key === pathname.split("/")[4] ? rs.key : null
+        )
+        const { key } = item[0]
+        return {
+            trailerId: key
+           }
+        }
+        return null
+      } else {
+        return null
+      }
+    }
+    
 
   render() {
-    const { result, loading, error, pathname, trailerId } = this.state;
+    const { result, loading, error, pathname, trailerId} = this.state;
     return (
       <TrailerPresenter
         result={result}
